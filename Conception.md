@@ -1,17 +1,17 @@
 # Conception d'une application de gestion de bureau 
 
 ## Le problème de départ
-L'application inspirée de solutions répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
+L'application inspirée de solutions comme Lucca répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
-### Liste de fonctionnalités initiale
+### Liste de fonctionnalités initiale (Le "Quoi")
 - **Gestion des comptes** : Création de compte, authentification et gestion des profils.
 - **Droits d'accès** : Distinction entre les rôles (Employé, Manager, Administrateur RH).
 - **Cartographie** : Visualisation des bureaux, zones et étages disponibles.
 - **Réservations** : Réserver un poste, modifier ou annuler une réservation.
 - **Télétravail** : Déclarer ses jours de travail à distance.
 - **Collaboration** : Rechercher où se situe un collègue dans les locaux.
-- **Analytique** : Statistiques d'occupation pour la direction.
-- **Notifications** : Rappels de réservation et confirmations par email.
+- **Analytique** : Statistiques d'occupation pour la direction (RH).
+- **Notifications** : Rappels de réservation et confirmations par email/push.
 
 ### Étape 1 — Regrouper par domaines métier
 
@@ -23,50 +23,19 @@ L'application inspirée de solutions répond au besoin des entreprises modernes 
 | **Social Module** | Annuaire interne, localisation des collègues sur le plan, vue d'équipe. | Facilite la collaboration hybride en permettant de savoir qui est présent et où se placer pour être avec son équipe. |
 | **Notification Module** | Rappels automatiques, confirmations par email, alertes push sur mobile. | Centralise la communication sortante du système pour informer les utilisateurs en temps réel. |
 
-## Étape 2 — Identifier les entités métier
+### Étape 2 — Identifier les entités métier
 
-On se demande : quelles sont les "choses" importantes que le système manipule ?  
+On se demande : **quelles sont les "choses" importantes que le système manipule ?**
 Pour notre projet, nous avons identifié les entités principales suivantes :
-
-- **Utilisateurs** (l'employé, admin ou manager)  
-- **EspaceDeTravail** (le bureau ou la salle à réserver)  
-- **Reservation** (la réservation en elle-même)
+- `User` (l'employé ou l'administrateur)
+- `Workspace` (le bureau ou la salle à réserver)
+- `Booking` (la réservation en elle-même)
 
 Chaque fonctionnalité influence directement la structure de nos entités. Par exemple :
 
-**Fonctionnalité :**  
-"Déclarer ses jours de télétravail ou réserver un bureau pour la journée."
+> **Fonctionnalité :** "Déclarer ses jours de télétravail ou réserver un bureau pour la journée."
+> → La réservation (`Booking`) doit donc avoir un type (Présentiel ou Télétravail) et une période. On en déduit :
 
-→ La réservation doit donc avoir un **type** et une **période**.
 
-```java
-class Reservation {
-    Long id;
-    LocalDate date;
-    LocalDateTime dateCreation;
-    TypeReservation type;         // BUREAU, TELETRAVAIL, ABSENCE
-    PeriodeReservation periode;   // MATIN, APREM, JOURNEE
-    Utilisateurs utilisateur;     // Celui qui réserve
-    EspaceDeTravail espace;       // Peut être null si télétravail
-
-    void confirmer();
-    void annuler();
-}
-```
-```java
-enum TypeReservation { 
-    BUREAU, 
-    TELETRAVAIL, 
-    ABSENCE 
-}
-```
-```java
-enum PeriodeReservation { 
-    JOURNEE, 
-    MATIN, 
-    APREM 
-}
-```
-
-![alt text](<Screenshot 2026-04-14 120333.png>)
+![alt text](<diagramme.png>)
 

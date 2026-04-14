@@ -23,27 +23,46 @@ L'application inspirée de solutions répond au besoin des entreprises modernes 
 | **Social Module** | Annuaire interne, localisation des collègues sur le plan, vue d'équipe. | Facilite la collaboration hybride en permettant de savoir qui est présent et où se placer pour être avec son équipe. |
 | **Notification Module** | Rappels automatiques, confirmations par email, alertes push sur mobile. | Centralise la communication sortante du système pour informer les utilisateurs en temps réel. |
 
-### Étape 2 — Identifier les entités métier
+## Étape 2 — Identifier les entités métier
 
-On se demande : **quelles sont les "choses" importantes que le système manipule ?**
+On se demande : quelles sont les "choses" importantes que le système manipule ?  
 Pour notre projet, nous avons identifié les entités principales suivantes :
-- `User` (l'employé ou l'administrateur)
-- `Workspace` (le bureau ou la salle à réserver)
-- `Booking` (la réservation en elle-même)
+
+- **Utilisateurs** (l'employé, admin ou manager)  
+- **EspaceDeTravail** (le bureau ou la salle à réserver)  
+- **Reservation** (la réservation en elle-même)
 
 Chaque fonctionnalité influence directement la structure de nos entités. Par exemple :
 
-> **Fonctionnalité :** "Déclarer ses jours de télétravail ou réserver un bureau pour la journée."
-> → La réservation (`Booking`) doit donc avoir un type (Présentiel ou Télétravail) et une période. On en déduit :
+**Fonctionnalité :**  
+"Déclarer ses jours de télétravail ou réserver un bureau pour la journée."
+
+→ La réservation doit donc avoir un **type** et une **période**.
 
 ```java
-class Booking {
+class Reservation {
     Long id;
     LocalDate date;
-    BookingType type;       // dérivé de la fonctionnalité (Télétravail/Présentiel)
-    BookingPeriod period;   // dérivé de la fonctionnalité (Matin/Après-midi/Journée)
-    User employee;          // Celui qui réserve
-    Workspace workspace;    // Le bureau réservé (peut être nul si télétravail)
+    LocalDateTime dateCreation;
+    TypeReservation type;         // BUREAU, TELETRAVAIL, ABSENCE
+    PeriodeReservation periode;   // MATIN, APREM, JOURNEE
+    Utilisateurs utilisateur;     // Celui qui réserve
+    EspaceDeTravail espace;       // Peut être null si télétravail
+
+    void confirmer();
+    void annuler();
+}
+
+enum TypeReservation { 
+    BUREAU, 
+    TELETRAVAIL, 
+    ABSENCE 
+}
+
+enum PeriodeReservation { 
+    JOURNEE, 
+    MATIN, 
+    APREM 
 }
 
 enum BookingType { OFFICE, REMOTE, ABSENCE }

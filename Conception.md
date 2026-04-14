@@ -23,7 +23,7 @@ L'application inspirée de solutions comme Lucca répond au besoin des entrepris
 | **Social Module** | Annuaire interne, localisation des collègues sur le plan, vue d'équipe. | Facilite la collaboration hybride en permettant de savoir qui est présent et où se placer pour être avec son équipe. |
 | **Notification Module** | Rappels automatiques, confirmations par email, alertes push sur mobile. | Centralise la communication sortante du système pour informer les utilisateurs en temps réel. |
 
-## Étape 2 — Identifier les entités métier
+### Étape 2 — Identifier les entités métier
 
 On se demande : **quelles sont les "choses" importantes que le système manipule ?**
 Pour notre projet, nous avons identifié les entités principales suivantes :

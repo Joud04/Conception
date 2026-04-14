@@ -1,7 +1,7 @@
 # Conception d'une application de gestion de bureau 
 
 ## Le problème de départ
-L'application inspirée de solutions comme Lucca répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
+L'application inspirée de solutions répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
 ### Liste de fonctionnalités initiale
 - **Gestion des comptes** : Création de compte, authentification et gestion des profils.
@@ -10,8 +10,8 @@ L'application inspirée de solutions comme Lucca répond au besoin des entrepris
 - **Réservations** : Réserver un poste, modifier ou annuler une réservation.
 - **Télétravail** : Déclarer ses jours de travail à distance.
 - **Collaboration** : Rechercher où se situe un collègue dans les locaux.
-- **Analytique** : Statistiques d'occupation pour la direction (RH).
-- **Notifications** : Rappels de réservation et confirmations par email/push.
+- **Analytique** : Statistiques d'occupation pour la direction.
+- **Notifications** : Rappels de réservation et confirmations par email.
 
 ### Étape 1 — Regrouper par domaines métier
 

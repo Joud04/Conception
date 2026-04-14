@@ -34,8 +34,10 @@ Pour notre projet, nous avons identifié les entités principales suivantes :
 Chaque fonctionnalité influence directement la structure de nos entités. Par exemple :
 
 > **Fonctionnalité :** "Déclarer ses jours de télétravail ou réserver un bureau pour la journée."
-> → La réservation (`Booking`) doit donc avoir un type (Présentiel ou Télétravail) et une période. On en déduit :
+> → La réservation (Booking) doit donc avoir un type (Présentiel ou Télétravail) et une période. On en déduit :
 
 
-![alt text](<diagramme.png>)
+![alt text](<diagramme.png>)'
+
+
 

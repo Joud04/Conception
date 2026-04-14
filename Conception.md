@@ -3,7 +3,7 @@
 ## Le problème de départ
 L'application inspirée de solutions comme Lucca répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
-### Liste de fonctionnalités initiale (Le "Quoi")
+### Liste de fonctionnalités initiale
 - **Gestion des comptes** : Création de compte, authentification et gestion des profils.
 - **Droits d'accès** : Distinction entre les rôles (Employé, Manager, Administrateur RH).
 - **Cartographie** : Visualisation des bureaux, zones et étages disponibles.
@@ -15,7 +15,7 @@ L'application inspirée de solutions comme Lucca répond au besoin des entrepris
 
 ### Étape 1 — Regrouper par domaines métier
 
-| Module | Fonctionnalités incluses | Responsabilité (Le "Pourquoi") |
+| Module | Fonctionnalités incluses | Responsabilité |
 | :--- | :--- | :--- |
 | **User Module** | Inscription, connexion, gestion des profils, attribution des rôles (Admin, Manager, User). | Gère l'identité numérique des collaborateurs et définit leurs permissions (qui peut faire quoi). |
 | **Space Module** | Inventaire des bâtiments, étages, zones (Open Space, Calme) et postes de travail. | Gère la base de données physique des ressources disponibles dans l'entreprise. |

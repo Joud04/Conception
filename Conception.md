@@ -52,21 +52,20 @@ class Reservation {
     void confirmer();
     void annuler();
 }
-
+```
+```java
 enum TypeReservation { 
     BUREAU, 
     TELETRAVAIL, 
     ABSENCE 
 }
-
+```
+```java
 enum PeriodeReservation { 
     JOURNEE, 
     MATIN, 
     APREM 
 }
-
-enum BookingType { OFFICE, REMOTE, ABSENCE }
-enum BookingPeriod { FULL_DAY, MORNING, AFTERNOON }
 ```
 
 ![alt text](<Screenshot 2026-04-14 120333.png>)

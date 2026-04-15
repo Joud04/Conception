@@ -249,3 +249,62 @@ Pour garantir la cohérence des données :
 - Chaque espace doit avoir une capacité > 0  
 
 ![alt text](<Interface d’entrée (Controller).png>)'
+
+## Étape 5 — Les fonctionnalités influencent le modèle de données
+
+Dans notre architecture en microservices, la donnée n'est plus centralisée dans une seule base. Pour garantir la performance et la fiabilité, nous avons appliqué les concepts des systèmes distribués (Théorème CAP, source de vérité, gestion de la latence) à nos fonctionnalités.
+
+### 5.1 La méthode en 4 questions (Dérivation)
+Nous appliquons la méthode systématique sur notre fonctionnalité critique : **"Marquer un bureau comme réservé"**.
+
+| Question | Réponse pour FlexiSpace |
+| :--- | :--- |
+| **1. Quel module ?** | **Booking Module** |
+| **2. Quelle donnée ?** | Entité `Reservation`, champ `statut` → `CONFIRMED` |
+| **3. Quelle logique ?** | Règle anti-collision : impossible de réserver un bureau déjà pris. Déclenche un événement `BookingConfirmedEvent`. |
+| **4. Quelle interaction ?** | Endpoint `POST /reservations` (API REST) + publication de l'événement dans le Message Broker. |
+
+### 5.2 Propriété de la donnée et Source de Vérité
+Dans un système distribué, il faut éviter les copies désynchronisées (anti-pattern). Nous avons défini une **source de vérité unique** pour chaque domaine métier :
+
+| Donnée | Propriétaire (Source de vérité) | Comportement des autres modules |
+| :--- | :--- | :--- |
+| **Profil / Rôle employé** | **User Module** | Le *Booking Module* ne stocke que l'`userId`. Il interroge l'API User pour vérifier les droits avant une réservation. |
+| **Inventaire des Bureaux** | **Space Module** | Le *Social Module* (Cartographie) lit l'inventaire. Le bureau ne doit jamais être supprimé s'il a des réservations actives. |
+| **Réservations actives** | **Booking Module** | Publie des événements (`BookingCreated`). Le *Notification Module* écoute cet événement pour envoyer le mail, sans jamais stocker la réservation. |
+
+### 5.3 Localisation des données, Latence et Cache
+Pour garantir une expérience utilisateur fluide (faible latence), nous devons adapter la localisation des données selon les fonctionnalités :
+
+* **Lecture de la Cartographie (Social Module) :** L'affichage du plan et de la position des collègues est lu des centaines de fois par jour. 
+    * **Stratégie :** Mise en place d'un **Cache en mémoire (ex: Redis)** avec une stratégie *Cache-aside*.
+    * **Gestion du cache périmé :** Pour éviter d'afficher un bureau libre alors qu'il vient d'être réservé, le *Social Module* écoute les événements du *Booking Module* pour faire une **invalidation par événement** instantanée.
+
+### 5.4 Cohérence des données et Théorème CAP
+En cas de partition réseau (panne entre nos microservices), le **Théorème CAP** nous oblige à choisir entre Cohérence (C) et Disponibilité (A). Nos choix diffèrent selon la criticité métier :
+
+* **Le système de Réservation (Choix CP - Cohérence + Tolérance aux partitions) :**
+    * *Raison :* Une incohérence ici signifierait un "surbooking" (deux collègues pour un même bureau). C'est inacceptable pour l'entreprise.
+    * *Garantie :* Nous exigeons une **Cohérence forte**. Si la base de données de réservation subit une panne de réplication, le système refusera les nouvelles réservations (Erreur HTTP 503) plutôt que de risquer un doublon. Utilisation stricte de transactions ACID locales.
+
+* **Le système d'Annuaire et Cartographie (Choix AP - Disponibilité + Tolérance aux partitions) :**
+    * *Raison :* Si un employé cherche où est assis son collègue, une donnée périmée de 10 secondes n'est pas dramatique.
+    * *Garantie :* Nous choisissons la **Cohérence éventuelle**. Même si la synchronisation avec le module de réservation est coupée (partition), la carte continuera de s'afficher et de répondre aux requêtes en utilisant les données en cache, garantissant ainsi une haute disponibilité.
+
+### 5.5 Les relations et le modèle de base de données (Multiplicités)
+
+Notre diagramme de classes UML (Étape 3) dicte directement la manière dont les tables SQL seront construites. Nous avons traduit nos cardinalités en relations de base de données :
+
+* **La Composition stricte (1:N) : `Batiment` et `EspaceDeTravail`**
+    * *Sur le schéma :* Le losange noir indique qu'un bâtiment contient plusieurs espaces (`*`), et qu'un espace appartient à un seul bâtiment (`1`).
+    * *Traduction SQL :* La table `EspaceDeTravail` contiendra une clé étrangère `batiment_id` (NOT NULL). Si le bâtiment est supprimé, la base de données supprimera en cascade (CASCADE DELETE) tous les bureaux associés.
+
+* **L'Association simple (1:N) : `Utilisateur` et `Reservation`**
+    * *Sur le schéma :* Un utilisateur effectue plusieurs réservations (`*`), mais une réservation appartient à un seul utilisateur (`1`).
+    * *Traduction SQL :* La table `Reservation` contiendra une clé étrangère `utilisateur_id` (NOT NULL).
+
+* **L'Association conditionnelle (0..1 : N) : `EspaceDeTravail` et `Reservation`**
+    * *Sur le schéma :* Une réservation concerne `0..1` espace de travail.
+    * *Traduction SQL :* C'est un choix métier fort. La table `Reservation` possèdera une clé étrangère `espace_id`, mais celle-ci pourra être **NULL** (vide). Cela nous permet d'enregistrer les réservations de type `TELETRAVAIL` ou `ABSENCE` qui ne nécessitent pas de bureau physique.
+
+

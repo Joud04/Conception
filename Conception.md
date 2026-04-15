@@ -248,3 +248,4 @@ Pour garantir la cohérence des données :
 - Un espace ne peut pas être supprimé s’il existe des réservations actives  
 - Chaque espace doit avoir une capacité > 0  
 
+![alt text](<Interface d’entrée (Controller).png>)'

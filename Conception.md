@@ -4,14 +4,31 @@
 L'application répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
 ### Liste de fonctionnalités initiale 
-- **Gestion des comptes** : Création de compte, authentification et gestion des profils
-- **Droits d'accès** : Distinction entre les rôles (Employé, Manager, Administrateur RH)
-- **Cartographie** : Visualisation des bureaux, zones et étages disponibles
-- **Réservations** : Réserver un poste, modifier ou annuler une réservation
-- **Télétravail** : Déclarer ses jours de travail à distance
-- **Collaboration** : Rechercher où se situe un collègue dans les locaux
-- **Analytique** : Permet la création de statistiques descriptive pour la direction
-- **Notifications** : Rappels de réservation et confirmations par email/push
+- **Authentification & Sécurité**
+  - Connexion sécurisée via email et mot de passe.
+  - Procédure "Mot de passe oublié" avec envoi d'un lien sécurisé par email.
+  - Gestion des sessions actives pour éviter les connexions multiples non autorisées.
+
+- **Gestion du Profil**
+  - Édition du profil personnel (photo, numéro de téléphone pro, biographie).
+  - Configuration des préférences utilisateur (horaires par défaut, zones de bureau favorites).
+  - Tableau de bord personnel avec vue d'ensemble des réservations et du solde de jours de télétravail.
+
+- **Administration des Collaborateurs**
+  - Création de nouveaux comptes par l'administrateur ou import via un fichier.
+  - Envoi automatique d'un mail de bienvenue avec lien d'activation de compte.
+  - Désactivation ou suppression des comptes lors du départ d'un employé.
+
+- **Gestion des Droits et Rôles**
+  - Affectation des utilisateurs aux rôles spécifiques (Employé, Manager ou Admin).
+  - Restriction des fonctionnalités et contrôle d'accès selon le rôle défini.
+
+- **Cartographie** : Visualisation interactive des plans (étages, zones de silence, open-space) et disponibilité en temps réel.
+- **Réservations** : Système de réservation de poste avec sélection sur plan, modification et annulation instantanée.
+- **Télétravail** : Calendrier de déclaration des jours de télétravail avec système de validation automatique.
+- **Collaboration** : Moteur de recherche pour localiser un collègue dans les locaux.
+- **Analytique** : Génération de rapports et statistiques d'occupation des locaux (réservé aux RH/Admin).
+- **Notifications** : Système d'alertes automatiques (Push/Email) pour confirmer une réservation ou rappeler une présence.
 
 ### Étape 1 — Regrouper par domaines métier
 

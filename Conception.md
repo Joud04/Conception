@@ -1,25 +1,25 @@
 # Conception d'une application de gestion de bureau 
 
 ## Le problème de départ
-L'application inspirée de solutions comme Lucca répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
+L'application répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
-### Liste de fonctionnalités initiale (Le "Quoi")
-- **Gestion des comptes** : Création de compte, authentification et gestion des profils.
-- **Droits d'accès** : Distinction entre les rôles (Employé, Manager, Administrateur RH).
-- **Cartographie** : Visualisation des bureaux, zones et étages disponibles.
-- **Réservations** : Réserver un poste, modifier ou annuler une réservation.
-- **Télétravail** : Déclarer ses jours de travail à distance.
-- **Collaboration** : Rechercher où se situe un collègue dans les locaux.
-- **Analytique** : Statistiques d'occupation pour la direction (RH).
-- **Notifications** : Rappels de réservation et confirmations par email/push.
+### Liste de fonctionnalités initiale 
+- **Gestion des comptes** : Création de compte, authentification et gestion des profils
+- **Droits d'accès** : Distinction entre les rôles (Employé, Manager, Administrateur RH)
+- **Cartographie** : Visualisation des bureaux, zones et étages disponibles
+- **Réservations** : Réserver un poste, modifier ou annuler une réservation
+- **Télétravail** : Déclarer ses jours de travail à distance
+- **Collaboration** : Rechercher où se situe un collègue dans les locaux
+- **Analytique** : Permet la création de statistiques descriptive pour la direction
+- **Notifications** : Rappels de réservation et confirmations par email/push
 
 ### Étape 1 — Regrouper par domaines métier
 
 | Module | Fonctionnalités incluses | Responsabilité |
 | :--- | :--- | :--- |
-| **User Module** | Inscription, connexion, gestion des profils, attribution des rôles (Admin, Manager, User). | Gère l'identité numérique des collaborateurs et définit leurs permissions (qui peut faire quoi). |
-| **Space Module** | Inventaire des bâtiments, étages, zones (Open Space, Calme) et postes de travail. | Gère la base de données physique des ressources disponibles dans l'entreprise. |
-| **Booking Module** | Réservation de poste, déclaration de télétravail, calendrier de présence, annulations. | Gère le cycle de vie des réservations et garantit l'absence de conflits (ex: deux personnes sur le même bureau). |
+| **User Module** | Inscription, connexion, gestion des profils, attribution des rôles (Admin, Manager, User). | Gère l'identité numérique des collaborateurs et définit leurs permissions. |
+| **Space Module** | Inventaire des bâtiments, étages et postes de travail. | Gère la base de données physique des ressources disponibles dans l'entreprise. |
+| **Booking Module** | Réservation de poste, déclaration de télétravail, annulations. | Gère le cycle de vie des réservations et garantit l'absence de conflits (ex: deux personnes sur le même bureau). |
 | **Social Module** | Annuaire interne, localisation des collègues sur le plan, vue d'équipe. | Facilite la collaboration hybride en permettant de savoir qui est présent et où se placer pour être avec son équipe. |
 | **Notification Module** | Rappels automatiques, confirmations par email, alertes push sur mobile. | Centralise la communication sortante du système pour informer les utilisateurs en temps réel. |
 

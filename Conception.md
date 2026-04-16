@@ -267,6 +267,7 @@ BookingCreatedEvent        ← événement métier
 NotificationService        ← service consommateur
 EmailSender / PushService  ← envoi des notifications
 ```
+![alt text](<Reservation_Bureau.png>)'
 
 #### Explication
 
@@ -293,7 +294,7 @@ BookingService             ← logique métier
 UNIQUE(espace_id, date)    ← contrainte base
 Transaction                ← cohérence forte
 ```
-![alt text](<diagramme.png>)'
+![alt text](<Reservation_Bureaux.png>)'
 
 #### Explication
 
@@ -317,7 +318,7 @@ Redis Cache                ← stockage temporaire
 Cache-aside pattern        ← stratégie de lecture
 Event (BookingCreated)     ← mise à jour du cache
 ```
-![alt text](<diagramme.png>)'
+![alt text](<Affichage_Bureau.png>)'
 
 #### Explication
 
@@ -341,7 +342,7 @@ Role (USER, ADMIN)         ← modèle
 Security Layer             ← vérification accès
 Policy / Strategy          ← gestion des droits
 ```
-![alt text](<diagramme.png>)'
+![alt text](<Fonctionnalité.png>)'
 
 #### Explication
 

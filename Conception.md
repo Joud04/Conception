@@ -353,30 +353,6 @@ Toutes les fonctionnalités ne sont pas accessibles à tout le monde :
 
 On met donc en place un système de rôles pour contrôler l’accès aux fonctionnalités.
 
----
-
-### Tableau récapitulatif
-
-| Fonctionnalité | Pattern utilisé |
-|----------------|---------------|
-| Notifications  | Event-driven (événements) |
-| Réservations   | Transactions + contraintes SQL |
-| Cartographie   | Cache (Redis) |
-| Permissions    | Gestion des rôles (RBAC) |
-| Statistiques   | Requêtes d’analyse |
-
----
-
-### Conclusion
-
-Au final, les fonctionnalités ne servent pas seulement à définir ce que fait l’application.  
-Elles influencent aussi la façon dont on la construit.
-
-Grâce à ces choix, on obtient une application :
-
-- plus claire  
-- plus performante  
-- plus facile à faire évoluer  
   
 ## Étape 5 — Les fonctionnalités influencent le modèle de données
 

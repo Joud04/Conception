@@ -250,6 +250,133 @@ Pour garantir la cohérence des données :
 
 ![alt text](<Interface d’entrée (Controller).png>)'
 
+
+## Étape 4 — Les fonctionnalités orientent les patterns
+
+Dans notre application, certaines fonctionnalités nous ont naturellement amenés à faire des choix d’architecture.  
+On ne les a pas choisis au hasard : ce sont les besoins du projet qui nous ont guidés.
+
+---
+
+### Exemple : Notifications après réservation
+
+#### Traduction dans notre application
+
+```text
+BookingCreatedEvent        ← événement métier
+NotificationService        ← service consommateur
+EmailSender / PushService  ← envoi des notifications
+```
+
+#### Explication
+
+Quand un utilisateur réserve un bureau :
+
+- le module Booking enregistre la réservation  
+- ensuite, il déclenche un événement (`BookingCreatedEvent`)  
+- le module Notification récupère cet événement  
+- et envoie automatiquement une notification (email ou push)  
+
+Ce fonctionnement est intéressant parce que :
+
+- la réservation et les notifications sont séparées  
+- le système reste rapide (on ne bloque pas l’utilisateur pendant l’envoi)  
+
+---
+
+### Exemple : Gestion des réservations (anti-conflits)
+
+#### Traduction
+
+```text
+BookingService             ← logique métier
+UNIQUE(espace_id, date)    ← contrainte base
+Transaction                ← cohérence forte
+```
+![alt text](<diagramme.png>)'
+
+#### Explication
+
+Pour les réservations, on doit absolument éviter les erreurs :
+
+- deux personnes ne peuvent pas réserver le même bureau au même moment  
+- on vérifie donc la disponibilité avant d’enregistrer  
+- la base de données impose aussi des contraintes  
+- et on utilise des transactions pour sécuriser l’opération  
+
+Ici, on privilégie la **cohérence des données**, car c’est une partie critique de l’application.
+
+---
+
+### Exemple : Affichage de la cartographie (performance)
+
+#### Traduction
+
+```text
+Redis Cache                ← stockage temporaire
+Cache-aside pattern        ← stratégie de lecture
+Event (BookingCreated)     ← mise à jour du cache
+```
+![alt text](<diagramme.png>)'
+
+#### Explication
+
+La carte des bureaux est consultée très souvent :
+
+- pour éviter de surcharger la base de données, on utilise un cache  
+- les données sont récupérées plus rapidement  
+- quand une réservation est faite, on met à jour le cache  
+
+Ça permet d’avoir une application plus fluide et réactive.
+
+---
+
+### Exemple : Gestion des rôles et permissions
+
+#### Traduction
+
+
+```text
+Role (USER, ADMIN)         ← modèle
+Security Layer             ← vérification accès
+Policy / Strategy          ← gestion des droits
+```
+![alt text](<diagramme.png>)'
+
+#### Explication
+
+Toutes les fonctionnalités ne sont pas accessibles à tout le monde :
+
+- un utilisateur classique ne peut pas gérer les espaces  
+- un admin, lui, a plus de droits  
+
+On met donc en place un système de rôles pour contrôler l’accès aux fonctionnalités.
+
+---
+
+### Tableau récapitulatif
+
+| Fonctionnalité | Pattern utilisé |
+|----------------|---------------|
+| Notifications  | Event-driven (événements) |
+| Réservations   | Transactions + contraintes SQL |
+| Cartographie   | Cache (Redis) |
+| Permissions    | Gestion des rôles (RBAC) |
+| Statistiques   | Requêtes d’analyse |
+
+---
+
+### Conclusion
+
+Au final, les fonctionnalités ne servent pas seulement à définir ce que fait l’application.  
+Elles influencent aussi la façon dont on la construit.
+
+Grâce à ces choix, on obtient une application :
+
+- plus claire  
+- plus performante  
+- plus facile à faire évoluer  
+  
 ## Étape 5 — Les fonctionnalités influencent le modèle de données
 
 Dans notre architecture en microservices, la donnée n'est plus centralisée dans une seule base. Pour garantir la performance et la fiabilité, nous avons appliqué les concepts des systèmes distribués (Théorème CAP, source de vérité, gestion de la latence) à nos fonctionnalités.

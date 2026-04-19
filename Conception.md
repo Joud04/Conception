@@ -412,3 +412,33 @@ Notre diagramme de classes UML (Étape 3) dicte directement la manière dont les
     * *Traduction SQL :* C'est un choix métier fort. La table `Reservation` possèdera une clé étrangère `espace_id`, mais celle-ci pourra être **NULL** (vide). Cela nous permet d'enregistrer les réservations de type `TELETRAVAIL` ou `ABSENCE` qui ne nécessitent pas de bureau physique.
 
 
+## Pourquoi utiliser les microservices
+
+- Permet de découper une application en services indépendants
+- Améliore la scalabilité (chaque service peut évoluer séparément)
+- Facilite la maintenance et les déploiements
+- Augmente la résilience (une panne n’impacte pas tout le système)
+- Permet d’utiliser différentes technologies selon les besoins
+
+---
+
+## Étape 6 — Architecture Microservices
+
+![Architecture Microservices](Excalidraw Whiteboard - Google Chrome 19_04_2026 23_45_35 (2).png)
+
+Le système est découpé en plusieurs microservices indépendants communiquant de deux manières :
+
+### Communication synchrone
+Les services échangent via des appels REST (API Gateway ou service à service), par exemple :
+
+### Communication asynchrone
+Les événements métiers sont diffusés via un **Apache Kafka**.
+
+Exemples d’événements :
+- EventReervcree
+- EvenReservCancelled
+- UtilisateurCreeEvent
+
+### Avantage
+Cette approche permet de découpler les services et d’améliorer la scalabilité et la résilience du système.
+

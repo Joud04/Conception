@@ -424,7 +424,8 @@ Notre diagramme de classes UML (Étape 3) dicte directement la manière dont les
 
 ## Étape 6 — Architecture Microservices
 
-![Architecture Microservices](Excalidraw Whiteboard - Google Chrome 19_04_2026 23_45_35 (2).png)
+![alt text](<Excalidraw Whiteboard - Google Chrome 19_04_2026 23_45_35 (2).png>)'
+
 
 Le système est découpé en plusieurs microservices indépendants communiquant de deux manières :
 

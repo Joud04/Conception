@@ -368,6 +368,9 @@ Requête entrante  →  Vérification du rôle  →  Accès autorisé ou refusé
 
 Si demain on ajoute un nouveau rôle ou un nouvel endpoint, on n'a qu'un seul 
 endroit à modifier.
+On reviendra plus en détail sur l'implémentation des rôles dans la section 
+dédiée à la gestion des droits. Ici on voulait surtout montrer pourquoi 
+ce pattern s'imposait dès la conception.
 
 **Pattern utilisé :** RBAC (Role-Based Access Control)
 

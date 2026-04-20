@@ -291,6 +291,15 @@ BookingCreatedEvent  →  NotificationService  →  EmailSender / PushService
 
 **Pattern utilisé :** Event-Driven (Observer)
 
+```mermaid
+flowchart LR
+    A[Utilisateur] -->|Réserve un bureau| B[Booking Module]
+    B -->|Enregistre la réservation| C[(Base de données)]
+    B -->|Publie BookingCreatedEvent| D[Notification Module]
+    D -->|Envoie| E[Email]
+    D -->|Envoie| F[Push]
+```
+
 ---
 
 ### Exemple 2 : Anti-conflits de réservation
@@ -330,6 +339,16 @@ garantir qu'aucun état intermédiaire incohérent ne soit sauvegardé.
 
 **Pattern utilisé :** Transaction ACID + contrainte UNIQUE
 
+```mermaid
+flowchart LR
+    A[Utilisateur] -->|POST /reservations| B[ReservationController]
+    B --> C[ReservationService]
+    C -->|Vérifie disponibilité| D[(Base de données)]
+    D -->|Disponible| E[Enregistre la réservation]
+    D -->|Déjà réservé| F[Erreur 409 - Conflit]
+    E -->|Contrainte UNIQUE| D
+```
+
 ---
 
 ### Exemple 3 : Gestion des rôles et permissions
@@ -351,6 +370,15 @@ Si demain on ajoute un nouveau rôle ou un nouvel endpoint, on n'a qu'un seul
 endroit à modifier.
 
 **Pattern utilisé :** RBAC (Role-Based Access Control)
+
+```mermaid
+flowchart LR
+    A[Requête entrante] --> B{Vérification du rôle}
+    B -->|USER| C[Accès réservations / profil]
+    B -->|MANAGER| D[Accès équipe / rapports]
+    B -->|ADMIN| E[Accès complet]
+    B -->|Non autorisé| F[Erreur 403]
+```
 
 ---
 

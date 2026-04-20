@@ -330,15 +330,7 @@ garantir qu'aucun état intermédiaire incohérent ne soit sauvegardé.
 
 **Pattern utilisé :** Transaction ACID + contrainte UNIQUE
 
-```mermaid
-flowchart LR
-    A[Utilisateur] -->|POST /reservations| B[ReservationController]
-    B --> C[ReservationService]
-    C -->|Vérifie disponibilité| D[(Base de données)]
-    D -->|Disponible| E[Enregistre la réservation]
-    D -->|Déjà réservé| F[Erreur 409 - Conflit]
-    E -->|Contrainte UNIQUE| D
-```
+![alt text](<Anti-conflits.png>)'
 
 ---
 
@@ -365,14 +357,7 @@ ce pattern s'imposait dès la conception.
 
 **Pattern utilisé :** RBAC (Role-Based Access Control)
 
-```mermaid
-flowchart LR
-    A[Requête entrante] --> B{Vérification du rôle}
-    B -->|USER| C[Accès réservations / profil]
-    B -->|MANAGER| D[Accès équipe / rapports]
-    B -->|ADMIN| E[Accès complet]
-    B -->|Non autorisé| F[Erreur 403]
-```
+![alt text](<Architecture microservices.png>)'
 
 ---
 

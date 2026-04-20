@@ -291,16 +291,7 @@ BookingCreatedEvent  →  NotificationService  →  EmailSender / PushService
 
 **Pattern utilisé :** Event-Driven (Observer)
 
-```mermaid
-flowchart LR
-    A[Utilisateur] -->|Réserve un bureau| B[Booking Module]
-    B -->|Enregistre la réservation| C[(Base de données)]
-    B -->|Publie BookingCreatedEvent| D[Notification Module]
-    D -->|Envoie| E[Email]
-    D -->|Envoie| F[Push]
-```
-
----
+![alt text](<Notifications.png>)'
 
 ### Exemple 2 : Anti-conflits de réservation
 

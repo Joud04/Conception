@@ -38,7 +38,7 @@ Dans un premier temps, chaque membre du groupe a réfléchi individuellement aux
 | Module | Fonctionnalités incluses | Responsabilité |
 | :--- | :--- | :--- |
 | **User Module** | Inscription, connexion, gestion des profils, attribution des rôles (Admin, Manager, User). | Gère l'identité numérique des collaborateurs et définit leurs permissions. |
-| **Space Module** | Inventaire des bâtiments, étages et postes de travail. | Gère la base de données physique des ressources disponibles dans l'entreprise. |
+| **Workspace Module** | Inventaire des bâtiments, étages et postes de travail. | Gère la base de données physique des ressources disponibles dans l'entreprise. |
 | **Booking Module** | Réservation de poste, déclaration de télétravail, annulations. | Gère le cycle de vie des réservations et garantit l'absence de conflits (ex: deux personnes sur le même bureau). |
 | **Social Module** | Annuaire interne, localisation des collègues sur le plan, vue d'équipe. | Facilite la collaboration hybride en permettant de savoir qui est présent et où se placer pour être avec son équipe. |
 | **Notification Module** | Rappels automatiques, confirmations par email, alertes push sur mobile. | Centralise la communication sortante du système pour informer les utilisateurs en temps réel. |
@@ -417,7 +417,7 @@ On a défini clairement quel module est responsable de quelle donnée :
 | Donnée | Propriétaire | Comportement des autres modules |
 |---|---|---|
 | **Profil / Rôle employé** | User Module | Le Booking Module ne stocke que l'`userId`. Il interroge l'API User pour vérifier les droits. |
-| **Inventaire des bureaux** | Space Module | Les autres modules lisent l'inventaire mais ne le modifient pas. Un bureau ne peut pas être supprimé s'il a des réservations actives. |
+| **Inventaire des bureaux** | Workspace Module | Les autres modules lisent l'inventaire mais ne le modifient pas. Un bureau ne peut pas être supprimé s'il a des réservations actives. |
 | **Réservations actives** | Booking Module | Publie des événements que les autres modules écoutent. Personne d'autre ne stocke les réservations. |
 
 ---

@@ -430,7 +430,7 @@ Notre diagramme de classes UML (Étape 3) dicte directement la manière dont les
 Le système est découpé en plusieurs microservices indépendants communiquant de deux manières :
 
 ### Communication synchrone
-Les services échangent via des appels REST (API Gateway ou service à service), par exemple :
+Les services échangent via des appels REST (API Gateway ou service à service) :
 
 ### Communication asynchrone
 Les événements métiers sont diffusés via un **Apache Kafka**.

@@ -45,11 +45,12 @@ Dans un premier temps, chaque membre du groupe a réfléchi individuellement aux
 
 ### Étape 2 — Identifier les entités métier
 
-On se demande : **quelles sont les "choses" importantes que le système manipule ?**
-Pour notre projet, nous avons identifié les entités principales suivantes :
-- `User` (l'employé ou l'administrateur)
-- `Workspace` (le bureau ou la salle à réserver)
-- `Booking` (la réservation en elle-même)
+En parcourant la liste de fonctionnalités, on a essayé d'identifier les éléments centraux que l'application allait manipuler. Trois entités principales ont rapidement émergé :
+
+User (l'employé ou l'administrateur)
+Workspace (le bureau ou la salle à réserver)
+Booking (la réservation en elle-même)
+
 
 Chaque fonctionnalité influence directement la structure de nos entités. Par exemple :
 

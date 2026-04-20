@@ -48,7 +48,9 @@ Dans un premier temps, chaque membre du groupe a réfléchi individuellement aux
 En parcourant la liste de fonctionnalités, on a essayé d'identifier les éléments centraux que l'application allait manipuler. Trois entités principales ont rapidement émergé :
 
 User (l'employé ou l'administrateur)
+
 Workspace (le bureau ou la salle à réserver)
+
 Booking (la réservation en elle-même)
 
 

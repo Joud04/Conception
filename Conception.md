@@ -396,71 +396,79 @@ flowchart LR
   
 ## Étape 5 — Les fonctionnalités influencent le modèle de données
 
-Dans notre architecture en microservices, la donnée n'est plus centralisée dans une seule base. Pour garantir la performance et la fiabilité, nous avons appliqué les concepts des systèmes distribués (Théorème CAP, source de vérité, gestion de la latence) à nos fonctionnalités.
-
-### 5.1 La méthode en 4 questions (Dérivation)
-Nous appliquons la méthode systématique sur notre fonctionnalité critique : **"Marquer un bureau comme réservé"**.
-
-| Question | Réponse pour FlexiSpace |
-| :--- | :--- |
-| **1. Quel module ?** | **Booking Module** |
-| **2. Quelle donnée ?** | Entité `Reservation`, champ `statut` → `CONFIRMED` |
-| **3. Quelle logique ?** | Règle anti-collision : impossible de réserver un bureau déjà pris. Déclenche un événement `BookingConfirmedEvent`. |
-| **4. Quelle interaction ?** | Endpoint `POST /reservations` (API REST) + publication de l'événement dans le Message Broker. |
-
-### 5.2 Propriété de la donnée et Source de Vérité
-Dans un système distribué, il faut éviter les copies désynchronisées (anti-pattern). Nous avons défini une **source de vérité unique** pour chaque domaine métier :
-
-| Donnée | Propriétaire (Source de vérité) | Comportement des autres modules |
-| :--- | :--- | :--- |
-| **Profil / Rôle employé** | **User Module** | Le *Booking Module* ne stocke que l'`userId`. Il interroge l'API User pour vérifier les droits avant une réservation. |
-| **Inventaire des Bureaux** | **Space Module** | Le *Social Module* (Cartographie) lit l'inventaire. Le bureau ne doit jamais être supprimé s'il a des réservations actives. |
-| **Réservations actives** | **Booking Module** | Publie des événements (`BookingCreated`). Le *Notification Module* écoute cet événement pour envoyer le mail, sans jamais stocker la réservation. |
-
-### 5.3 Localisation des données, Latence et Cache
-Pour garantir une expérience utilisateur fluide (faible latence), nous devons adapter la localisation des données selon les fonctionnalités :
-
-* **Lecture de la Cartographie (Social Module) :** L'affichage du plan et de la position des collègues est lu des centaines de fois par jour. 
-    * **Stratégie :** Mise en place d'un **Cache en mémoire (ex: Redis)** avec une stratégie *Cache-aside*.
-    * **Gestion du cache périmé :** Pour éviter d'afficher un bureau libre alors qu'il vient d'être réservé, le *Social Module* écoute les événements du *Booking Module* pour faire une **invalidation par événement** instantanée.
-
-### 5.4 Cohérence des données et Théorème CAP
-En cas de partition réseau (panne entre nos microservices), le **Théorème CAP** nous oblige à choisir entre Cohérence (C) et Disponibilité (A). Nos choix diffèrent selon la criticité métier :
-
-* **Le système de Réservation (Choix CP - Cohérence + Tolérance aux partitions) :**
-    * *Raison :* Une incohérence ici signifierait un "surbooking" (deux collègues pour un même bureau). C'est inacceptable pour l'entreprise.
-    * *Garantie :* Nous exigeons une **Cohérence forte**. Si la base de données de réservation subit une panne de réplication, le système refusera les nouvelles réservations (Erreur HTTP 503) plutôt que de risquer un doublon. Utilisation stricte de transactions ACID locales.
-
-* **Le système d'Annuaire et Cartographie (Choix AP - Disponibilité + Tolérance aux partitions) :**
-    * *Raison :* Si un employé cherche où est assis son collègue, une donnée périmée de 10 secondes n'est pas dramatique.
-    * *Garantie :* Nous choisissons la **Cohérence éventuelle**. Même si la synchronisation avec le module de réservation est coupée (partition), la carte continuera de s'afficher et de répondre aux requêtes en utilisant les données en cache, garantissant ainsi une haute disponibilité.
-
-### 5.5 Les relations et le modèle de base de données (Multiplicités)
-
-Notre diagramme de classes UML (Étape 3) dicte directement la manière dont les tables SQL seront construites. Nous avons traduit nos cardinalités en relations de base de données :
-
-* **La Composition stricte (1:N) : `Batiment` et `EspaceDeTravail`**
-    * *Sur le schéma :* Le losange noir indique qu'un bâtiment contient plusieurs espaces (`*`), et qu'un espace appartient à un seul bâtiment (`1`).
-    * *Traduction SQL :* La table `EspaceDeTravail` contiendra une clé étrangère `batiment_id` (NOT NULL). Si le bâtiment est supprimé, la base de données supprimera en cascade (CASCADE DELETE) tous les bureaux associés.
-
-* **L'Association simple (1:N) : `Utilisateur` et `Reservation`**
-    * *Sur le schéma :* Un utilisateur effectue plusieurs réservations (`*`), mais une réservation appartient à un seul utilisateur (`1`).
-    * *Traduction SQL :* La table `Reservation` contiendra une clé étrangère `utilisateur_id` (NOT NULL).
-
-* **L'Association conditionnelle (0..1 : N) : `EspaceDeTravail` et `Reservation`**
-    * *Sur le schéma :* Une réservation concerne `0..1` espace de travail.
-    * *Traduction SQL :* C'est un choix métier fort. La table `Reservation` possèdera une clé étrangère `espace_id`, mais celle-ci pourra être **NULL** (vide). Cela nous permet d'enregistrer les réservations de type `TELETRAVAIL` ou `ABSENCE` qui ne nécessitent pas de bureau physique.
-
-
-## Pourquoi utiliser les microservices
-
-- Permet de découper une application en services indépendants
-- Améliore la scalabilité (chaque service peut évoluer séparément)
-- Facilite la maintenance et les déploiements
-- Augmente la résilience (une panne n’impacte pas tout le système)
-- Permet d’utiliser différentes technologies selon les besoins
+Dans une architecture microservices, la donnée n'est plus centralisée dans une seule 
+base. On a dû réfléchir à qui possède quelle donnée, et comment les services 
+communiquent entre eux sans se marcher dessus.
 
 ---
+
+### 5.1 La méthode en 4 questions
+
+On a appliqué une méthode simple sur notre fonctionnalité la plus critique : 
+**"Marquer un bureau comme réservé"**.
+
+| Question | Réponse pour FlexiSpace |
+|---|---|
+| **Quel module ?** | Booking Module |
+| **Quelle donnée ?** | Entité `Reservation`, champ `statut` → `CONFIRMED` |
+| **Quelle logique ?** | Règle anti-collision : impossible de réserver un bureau déjà pris. Déclenche un `BookingConfirmedEvent`. |
+| **Quelle interaction ?** | Endpoint `POST /reservations` + publication de l'événement |
+
+---
+
+### 5.2 Propriété de la donnée
+
+Dans un système distribué, chaque donnée doit avoir un seul propriétaire. 
+On a défini clairement quel module est responsable de quelle donnée :
+
+| Donnée | Propriétaire | Comportement des autres modules |
+|---|---|---|
+| **Profil / Rôle employé** | User Module | Le Booking Module ne stocke que l'`userId`. Il interroge l'API User pour vérifier les droits. |
+| **Inventaire des bureaux** | Space Module | Les autres modules lisent l'inventaire mais ne le modifient pas. Un bureau ne peut pas être supprimé s'il a des réservations actives. |
+| **Réservations actives** | Booking Module | Publie des événements que les autres modules écoutent. Personne d'autre ne stocke les réservations. |
+
+---
+
+### 5.3 Cohérence des données
+
+On a eu à se poser une question concrète : que se passe-t-il si un service tombe 
+pendant une réservation ?
+
+Pour les réservations, on ne peut pas se permettre d'avoir des données 
+incohérentes — deux personnes sur le même bureau c'est inacceptable. 
+On a donc choisi de privilégier la cohérence : si la base de réservation 
+rencontre un problème, le système refuse la nouvelle réservation plutôt 
+que de risquer un doublon.
+
+Pour l'annuaire et la cartographie en revanche, une donnée légèrement 
+en retard n'est pas critique. Si la carte met quelques secondes à se 
+mettre à jour après une réservation, ce n'est pas un problème pour 
+l'utilisateur.
+
+---
+
+### 5.4 Les relations et le modèle de données
+
+Notre diagramme de classes dicte directement la structure des tables SQL.
+
+**`Batiment` et `EspaceDeTravail` — relation 1:N**
+
+Un bâtiment contient plusieurs espaces, un espace appartient à un seul bâtiment. 
+La table `EspaceDeTravail` contient une clé étrangère `batiment_id` (NOT NULL). 
+Si le bâtiment est supprimé, tous ses espaces le sont aussi (CASCADE DELETE).
+
+**`Utilisateur` et `Reservation` — relation 1:N**
+
+Un utilisateur peut faire plusieurs réservations, mais une réservation 
+appartient à un seul utilisateur. La table `Reservation` contient une 
+clé étrangère `utilisateur_id` (NOT NULL).
+
+**`EspaceDeTravail` et `Reservation` — relation 0..1:N**
+
+C'est le choix le plus intéressant : la clé étrangère `espace_id` dans 
+la table `Reservation` peut être NULL. Ça nous permet d'enregistrer 
+les jours de télétravail comme des réservations sans bureau physique associé, 
+ce qui simplifie beaucoup le modèle.
 
 ## Étape 6 — Architecture Microservices
 

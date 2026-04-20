@@ -64,7 +64,8 @@ Chaque fonctionnalité influence directement la structure de nos entités. Par e
 
 ## Étape 3 — Dériver les composants techniques
 
-Pour chaque fonctionnalité métier, on identifie les couches techniques nécessaires :  
+Une fois les entités identifiées, on a réfléchi à comment les traduire concrètement en code. On a suivi une architecture en couches classique en Spring Boot:  
+
 **Controller → Service → Repository → Base de données**
 
 ---
@@ -163,6 +164,8 @@ Pour garantir l’absence de conflits :
 UNIQUE (espace_id, date, periode)
 ```
 
+C'est l'exemple qu'on a le plus détaillé car c'est le cœur de l'application — tout le reste en dépend. Les deux exemples suivants suivent la même logique, on les présente donc de manière plus condensée
+
 ## Exemple 2 : “Gestion des comptes”
 
 ---
@@ -252,112 +255,112 @@ Le repository gère l'accès à la base de données :
 Pour garantir la cohérence des données :
 
 - Un espace ne peut pas être supprimé s’il existe des réservations actives  
-- Chaque espace doit avoir une capacité > 0  
+- Chaque espace doit avoir une capacité > 0
+
+Ce découpage nous a aussi aidés à mieux répartir le travail dans le groupe — chacun pouvait travailler sur une couche sans bloquer les autres.
 
 ![alt text](<Interface d’entrée (Controller).png>)'
 
 
 ## Étape 4 — Les fonctionnalités orientent les patterns
 
-Dans notre application, certaines fonctionnalités nous ont naturellement amenés à faire des choix d’architecture.  
-On ne les a pas choisis au hasard : ce sont les besoins du projet qui nous ont guidés.
+En avançant dans la conception, on s'est rendu compte que certaines fonctionnalités 
+imposaient presque naturellement des choix techniques précis. Voici les trois cas 
+qui ont le plus influencé notre architecture.
 
 ---
 
-### Exemple : Notifications après réservation
+### Exemple 1 : Notifications après réservation
 
-#### Traduction dans notre application
+**Le besoin :** quand un utilisateur réserve un bureau, il doit recevoir une confirmation 
+par email ou notification push.
 
-```text
-BookingCreatedEvent        ← événement métier
-NotificationService        ← service consommateur
-EmailSender / PushService  ← envoi des notifications
-```
-![alt text](<Reservation_Bureau.png>)'
+**Le problème :** si on envoie la notification directement dans le même traitement que 
+la réservation, l'utilisateur attend la fin de l'envoi avant d'avoir sa réponse. 
+C'est lent, et si l'envoi échoue, ça peut faire rater toute la réservation.
 
-#### Explication
+**Notre choix :** on a séparé les deux actions. Le module Booking publie un événement 
+`BookingCreatedEvent` dès que la réservation est confirmée. Le module Notification 
+écoute cet événement et gère l'envoi de son côté, de manière indépendante.
 
-Quand un utilisateur réserve un bureau :
+Ce découplage nous a semblé naturel ici : la réservation et la notification n'ont pas 
+de raison d'être dans le même bloc. Si demain on veut ajouter un SMS en plus de l'email, 
+on n'a pas à toucher au module Booking.
 
-- le module Booking enregistre la réservation  
-- ensuite, il déclenche un événement (`BookingCreatedEvent`)  
-- le module Notification récupère cet événement  
-- et envoie automatiquement une notification (email ou push)  
+BookingCreatedEvent  →  NotificationService  →  EmailSender / PushService
 
-Ce fonctionnement est intéressant parce que :
-
-- la réservation et les notifications sont séparées  
-- le système reste rapide (on ne bloque pas l’utilisateur pendant l’envoi)  
+**Pattern utilisé :** Event-Driven (Observer)
 
 ---
 
-### Exemple : Gestion des réservations (anti-conflits)
+### Exemple 2 : Anti-conflits de réservation
 
-#### Traduction
+**Le besoin :** deux personnes ne peuvent pas réserver le même bureau au même moment.
 
-```text
-BookingService             ← logique métier
-UNIQUE(espace_id, date)    ← contrainte base
-Transaction                ← cohérence forte
+**Le problème :** si deux utilisateurs envoient leur réservation en même temps, 
+une simple vérification dans le code ne suffit pas — les deux requêtes peuvent 
+passer la vérification avant que l'une des deux soit enregistrée.
+
+**Notre choix :** on gère ça à deux niveaux :
+
+1. Une vérification dans le service avant d'enregistrer :
+
+```java
+boolean exists = reservationRepository
+    .existsByEspaceIdAndDateAndPeriode(
+        request.espaceId,
+        request.date,
+        request.periode
+    );
+
+if (exists) {
+    throw new RuntimeException("Ce bureau est déjà réservé");
+}
 ```
-![alt text](<Reservation_Bureaux.png>)'
 
-#### Explication
+2. Une contrainte directement en base de données :
 
-Pour les réservations, on doit absolument éviter les erreurs :
+```sql
+UNIQUE (espace_id, date, periode)
+```
 
-- deux personnes ne peuvent pas réserver le même bureau au même moment  
-- on vérifie donc la disponibilité avant d’enregistrer  
-- la base de données impose aussi des contraintes  
-- et on utilise des transactions pour sécuriser l’opération  
+Même si deux requêtes passent la vérification applicative en même temps, 
+la base rejette la deuxième. On entoure l'opération d'une transaction pour 
+garantir qu'aucun état intermédiaire incohérent ne soit sauvegardé.
 
-Ici, on privilégie la **cohérence des données**, car c’est une partie critique de l’application.
+**Pattern utilisé :** Transaction ACID + contrainte UNIQUE
 
 ---
 
-### Exemple : Affichage de la cartographie (performance)
+### Exemple 3 : Gestion des rôles et permissions
 
-#### Traduction
+**Le besoin :** toutes les fonctionnalités ne sont pas accessibles à tout le monde. 
+Un employé ne peut pas gérer les espaces, un manager ne peut pas créer des comptes.
 
-```text
-Redis Cache                ← stockage temporaire
-Cache-aside pattern        ← stratégie de lecture
-Event (BookingCreated)     ← mise à jour du cache
-```
-![alt text](<Affichage_Bureau.png>)'
+**Le problème :** si on gère les droits au cas par cas dans chaque endpoint, 
+le code devient vite ingérable et les erreurs de sécurité faciles à introduire.
 
-#### Explication
+**Notre choix :** on centralise la gestion des droits dans une couche dédiée. 
+Chaque utilisateur a un rôle (`USER`, `MANAGER`, `ADMIN`), et chaque endpoint 
+déclare le rôle minimum requis pour y accéder. La vérification se fait 
+automatiquement avant d'entrer dans la logique métier.
 
-La carte des bureaux est consultée très souvent :
+Requête entrante  →  Vérification du rôle  →  Accès autorisé ou refusé
 
-- pour éviter de surcharger la base de données, on utilise un cache  
-- les données sont récupérées plus rapidement  
-- quand une réservation est faite, on met à jour le cache  
+Si demain on ajoute un nouveau rôle ou un nouvel endpoint, on n'a qu'un seul 
+endroit à modifier.
 
-Ça permet d’avoir une application plus fluide et réactive.
+**Pattern utilisé :** RBAC (Role-Based Access Control)
 
 ---
 
-### Exemple : Gestion des rôles et permissions
+### Récapitulatif
 
-#### Traduction
-
-
-```text
-Role (USER, ADMIN)         ← modèle
-Security Layer             ← vérification accès
-Policy / Strategy          ← gestion des droits
-```
-![alt text](<Fonctionnalité.png>)'
-
-#### Explication
-
-Toutes les fonctionnalités ne sont pas accessibles à tout le monde :
-
-- un utilisateur classique ne peut pas gérer les espaces  
-- un admin, lui, a plus de droits  
-
-On met donc en place un système de rôles pour contrôler l’accès aux fonctionnalités.
+| Fonctionnalité | Problème soulevé | Pattern retenu |
+|---|---|---|
+| Notifications après réservation | Couplage fort, lenteur | Event-Driven (Observer) |
+| Anti-conflits de réservation | Requêtes simultanées | Transaction ACID + UNIQUE |
+| Gestion des rôles et permissions | Droits éparpillés dans le code | RBAC |
 
   
 ## Étape 5 — Les fonctionnalités influencent le modèle de données

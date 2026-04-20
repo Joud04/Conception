@@ -330,7 +330,7 @@ garantir qu'aucun état intermédiaire incohérent ne soit sauvegardé.
 
 **Pattern utilisé :** Transaction ACID + contrainte UNIQUE
 
-![alt text](<Anti-conflits.png>)'
+![alt text](<Anti-Conflits.png>)'
 
 ---
 
@@ -357,7 +357,7 @@ ce pattern s'imposait dès la conception.
 
 **Pattern utilisé :** RBAC (Role-Based Access Control)
 
-![alt text](<Architecture microservices.png>)'
+![alt text](<Architecture Microservices.png>)'
 
 ---
 

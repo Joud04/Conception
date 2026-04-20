@@ -396,9 +396,11 @@ flowchart LR
   
 ## Étape 5 — Les fonctionnalités influencent le modèle de données
 
-Dans une architecture microservices, la donnée n'est plus centralisée dans une seule 
-base. On a dû réfléchir à qui possède quelle donnée, et comment les services 
-communiquent entre eux sans se marcher dessus.
+En travaillant sur les modules, on a rapidement réalisé qu'une des questions 
+les plus importantes n'était pas "comment coder telle fonctionnalité" mais 
+"qui possède quelle donnée". Dans une architecture microservices, c'est un 
+point critique — si chaque service fait ce qu'il veut avec les données, 
+ça devient vite ingérable.
 
 ---
 

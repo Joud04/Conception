@@ -4,6 +4,9 @@
 L'application répond au besoin des entreprises modernes pratiquant le travail hybride. Elle permet aux collaborateurs d'organiser leur présence sur site et de réserver des postes de travail.
 
 ### Liste de fonctionnalités initiale 
+
+Dans un premier temps, chaque membre du groupe a réfléchi individuellement aux fonctionnalités qui lui semblaient essentielles. On a ensuite mis nos idées en commun pour construire une liste consolidée. Certaines fonctionnalités ont été débattues ou écartées car jugées trop complexes pour le périmètre du projet. Voici ce qu'on a retenu :
+
 - **Authentification & Sécurité**
   - Connexion sécurisée via email et mot de passe.
   - Procédure "Mot de passe oublié" avec envoi d'un lien sécurisé par email.

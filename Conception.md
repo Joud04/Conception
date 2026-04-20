@@ -465,50 +465,22 @@ ce qui simplifie beaucoup le modèle.
 
 ## Étape 6 — Architecture Microservices
 
-On a choisi une architecture microservices principalement parce que 
-les modules qu'on avait identifiés avaient des responsabilités vraiment 
-distinctes. Séparer le Booking du Notification ou du User nous semblait 
-naturel — chaque module a sa propre logique et ses propres données.
+Le système est découpé en plusieurs microservices indépendants communiquant de deux manières :
 
-Les services communiquent de deux manières selon le besoin.
+### Communication synchrone
 
----
+Les services échangent via des appels REST (API Gateway ou service à service).
 
-### Communication synchrone (REST)
+### Communication asynchrone
 
-Quand un service a besoin d'une réponse immédiate, il passe par l'API 
-Gateway. Par exemple le Booking Module vérifie les droits d'un 
-utilisateur auprès du User Module avant d'enregistrer une réservation.
-
-```mermaid
-flowchart LR
-    Client -->|Requête| A[API Gateway]
-    A --> B[User Module]
-    A --> C[Booking Module]
-    A --> D[Space Module]
-    A --> E[Social Module]
-    A --> F[Notification Module]
-```
-
----
-
-### Communication asynchrone (Kafka)
-
-Pour les cas où un service n'a pas besoin d'attendre une réponse, 
-on publie un événement sur Kafka. Le module concerné l'écoute et 
-réagit de son côté.
+Les événements métiers sont diffusés via un **Apache Kafka**.
 
 Exemples d'événements :
 
-- `BookingCreatedEvent` — déclenche l'envoi d'une notification
-- `BookingCancelledEvent` — libère le bureau et notifie l'utilisateur
-- `UserCreatedEvent` — initialise le profil et envoie le mail de bienvenue
+* BookingCreated
+* ReservationCancelled
+* UtilisateurCreeEvent
 
-```mermaid
-flowchart LR
-    B[Booking Module] -->|BookingCreatedEvent| K[Kafka]
-    K --> N[Notification Module]
-    K --> S[Social Module]
-    U[User Module] -->|UserCreatedEvent| K
-    K --> N
-```
+### Avantage
+
+Cette approche permet de découpler les services et d'améliorer la scalabilité et la résilience du système.

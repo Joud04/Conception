@@ -467,6 +467,8 @@ ce qui simplifie beaucoup le modèle.
 
 Le système est découpé en plusieurs microservices indépendants communiquant de deux manières :
 
+![alt text](<Excalidraw Whiteboard - Google Chrome 19_04_2026 23_45_35 (2).png>)' Excalidraw Whiteboard - Google Chrome 19_04_2026 23_45_35 (2).png
+
 ### Communication synchrone
 
 Les services échangent via des appels REST (API Gateway ou service à service).
